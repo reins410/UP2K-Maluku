@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[11px] font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase">
-                  PLN UID MALUKU & MALUKU UTARA
+                  PLN UIW MALUKU DAN MALUKU UTARA
                 </span>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                   UPPK MALUKU • LISDES
