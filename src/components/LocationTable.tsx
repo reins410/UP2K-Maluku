@@ -142,7 +142,7 @@ export const LocationTable: React.FC<LocationTableProps> = ({
         {/* Tahap Filter */}
         <div className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-lg border border-slate-800">
           <span className="text-slate-400 text-[11px] px-1.5 font-medium">Tahap:</span>
-          {['ALL', 'TAHAP 2', 'TAHAP 3', 'TAHAP 4'].map((tahap) => (
+          {['ALL', 'TAHAP 1', 'TAHAP 2', 'TAHAP 3', 'TAHAP 4'].map((tahap) => (
             <button
               key={tahap}
               onClick={() => setSelectedTahap(tahap)}

@@ -146,7 +146,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         cumulativeItems,
         title,
         periodLabel,
-        selectedUP3 === 'ALL' ? 'Semua UP3 (25 Lokasi)' : selectedUP3
+        selectedUP3 === 'ALL' ? `Semua UP3 (${locations.length} Lokasi)` : selectedUP3
       );
       filename = `Laporan_${frequency === 'daily' ? 'Harian' : 'Mingguan'}_Kumulatif_Uraian_Pekerjaan_${selectedDailyDate.replace(/\s+/g, '_')}.csv`;
     } else {
@@ -155,7 +155,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         filteredLocations,
         title,
         periodLabel,
-        selectedUP3 === 'ALL' ? 'Semua UP3 (25 Lokasi)' : selectedUP3
+        selectedUP3 === 'ALL' ? `Semua UP3 (${locations.length} Lokasi)` : selectedUP3
       );
       filename = `Laporan_${frequency === 'daily' ? 'Harian' : 'Mingguan'}_Rincian_Per_Lokasi_${selectedDailyDate.replace(/\s+/g, '_')}.csv`;
     }
@@ -307,7 +307,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     ? 'bg-blue-600 text-white shadow-sm'
                     : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
                 }`}
-                title="Rincian per 25 Lokasi"
+                title={`Rincian per ${locations.length} Lokasi`}
               >
                 Rincian Lokasi
               </button>
@@ -372,6 +372,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 className="bg-slate-900 border border-slate-700 hover:border-slate-600 rounded-lg px-2 py-1.5 text-xs text-white font-semibold focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
               >
                 <option value="ALL">Semua Tahap</option>
+                <option value="TAHAP 1">Tahap 1</option>
                 <option value="TAHAP 2">Tahap 2</option>
                 <option value="TAHAP 3">Tahap 3</option>
                 <option value="TAHAP 4">Tahap 4</option>
@@ -615,7 +616,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span>Rincian Kemajuan Fisik 25 Dusun / Desa</span>
+                  <span>Rincian Kemajuan Fisik {locations.length} Dusun / Desa</span>
                 </h4>
                 <p className="text-xs text-slate-400">
                   Daftar rinci progres bobot kontrak, penambahan periode ini, serta volume tiang & jaringan per lokasi desa.

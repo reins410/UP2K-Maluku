@@ -93,7 +93,7 @@ export const KpiMetrics: React.FC<KpiMetricsProps> = ({ locations, selectedLocat
           <div>
             <div className="flex items-center justify-between gap-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
-                {selectedLocation ? 'Status Lokasi' : 'Status 25 Lokasi'}
+                {selectedLocation ? 'Status Lokasi' : `Status ${totalLocations} Lokasi`}
               </span>
               <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -397,7 +397,7 @@ export const KpiMetrics: React.FC<KpiMetricsProps> = ({ locations, selectedLocat
           </div>
         ) : (
           <div className="text-[11px] text-slate-500">
-            Total Gabungan 25 Lokasi
+            Total Gabungan {locations.length} Lokasi
           </div>
         )}
       </div>

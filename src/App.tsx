@@ -18,35 +18,97 @@ import { ReportsView } from './components/ReportsView';
 import { GoogleSheetsModal } from './components/GoogleSheetsModal';
 import { LocationDetailModal } from './components/LocationDetailModal';
 import { parseMalukuSheetCSV, exportLocationsToCSV } from './utils/csvParser';
+import { computeWorkPackagesFromLocations } from './utils/workPackages';
+import { LiveSyncBanner } from './components/LiveSyncBanner';
 import { LayoutDashboard, MapPin, FileText } from 'lucide-react';
-import { initAuth, googleSignIn } from './services/googleAuth';
+import { initAuth, googleSignIn, getAccessToken } from './services/googleAuth';
+import { getSpreadsheetValues, parseSheetRowsToLocations } from './services/googleSheetsService';
 import { User } from 'firebase/auth';
 
 export default function App() {
-  const [locations, setLocations] = useState<LocationProject[]>(INITIAL_LOCATIONS);
-  const [packages, setPackages] = useState<WorkPackageOverall[]>(INITIAL_WORK_PACKAGES);
+  const [locations, setLocations] = useState<LocationProject[]>(() => {
+    try {
+      const saved = localStorage.getItem('lisdes_locations_cache');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 25) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return INITIAL_LOCATIONS;
+  });
+
+  const [packages, setPackages] = useState<WorkPackageOverall[]>(() => {
+    return computeWorkPackagesFromLocations(locations);
+  });
+
   const [selectedLocation, setSelectedLocation] = useState<LocationProject | null>(null);
   const [detailModalLoc, setDetailModalLoc] = useState<LocationProject | null>(null);
 
-  const [startDate, setStartDate] = useState<string>(PROJECT_METADATA.startDate);
-  const [cutoffDate, setCutoffDate] = useState<string>(PROJECT_METADATA.cutoffDate);
+  const [startDate, setStartDate] = useState<string>(() => {
+    return localStorage.getItem('lisdes_start_date') || PROJECT_METADATA.startDate;
+  });
+  const [cutoffDate, setCutoffDate] = useState<string>(() => {
+    return localStorage.getItem('lisdes_cutoff_date') || PROJECT_METADATA.cutoffDate;
+  });
 
   // Modals state
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [lastSyncNotification, setLastSyncNotification] = useState<string | null>(null);
 
   // Active view tab
   const [activeTab, setActiveTab] = useState<'overview' | 'locations' | 'reports'>('overview');
 
-  // Google Sheets real-time sync config
-  const [syncConfig, setSyncConfig] = useState<SyncConfig>({
-    sourceUrl: '',
-    isLive: false,
-    autoRefresh: false,
-    refreshIntervalSec: 60,
-    lastSyncTime: '10 Sep 2026 (Built-in)',
-    status: 'idle',
+  // Google Sheets real-time sync config (persisted across sessions)
+  const [syncConfig, setSyncConfig] = useState<SyncConfig>(() => {
+    try {
+      const saved = localStorage.getItem('lisdes_sync_config');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...parsed,
+          isLive: true,
+          autoRefresh: parsed.autoRefresh ?? true,
+          refreshIntervalSec: parsed.refreshIntervalSec || 30,
+          status: 'connected',
+        };
+      }
+    } catch {}
+    return {
+      sourceUrl: '',
+      isLive: true,
+      autoRefresh: true,
+      refreshIntervalSec: 30,
+      lastSyncTime: '10 Sep 2026',
+      status: 'connected',
+    };
   });
+
+  // Keep work packages and localStorage in sync whenever locations update
+  useEffect(() => {
+    const updatedPackages = computeWorkPackagesFromLocations(locations);
+    setPackages(updatedPackages);
+    try {
+      localStorage.setItem('lisdes_locations_cache', JSON.stringify(locations));
+    } catch {}
+  }, [locations]);
+
+  // Persist sync config
+  useEffect(() => {
+    try {
+      localStorage.setItem('lisdes_sync_config', JSON.stringify(syncConfig));
+    } catch {}
+  }, [syncConfig]);
+
+  // Persist dates
+  useEffect(() => {
+    try {
+      localStorage.setItem('lisdes_start_date', startDate);
+      localStorage.setItem('lisdes_cutoff_date', cutoffDate);
+    } catch {}
+  }, [startDate, cutoffDate]);
 
   // Listen to Google Auth state
   useEffect(() => {
@@ -80,11 +142,15 @@ export default function App() {
       setLocations(result.locations);
       if (result.startDate) setStartDate(result.startDate);
       if (result.updateDate) setCutoffDate(result.updateDate);
+      const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       setSyncConfig((prev) => ({
         ...prev,
-        lastSyncTime: new Date().toLocaleTimeString('id-ID'),
+        lastSyncTime: nowStr,
         status: 'connected',
+        errorMessage: undefined,
       }));
+      setLastSyncNotification(`Tersinkronisasi (${result.locations.length} lokasi)`);
+      setTimeout(() => setLastSyncNotification(null), 4000);
     } catch (err) {
       console.error('Failed to parse sheet data', err);
     }
@@ -94,50 +160,109 @@ export default function App() {
   const handleApplyLocationsData = useCallback((newLocations: LocationProject[], updateDate?: string) => {
     setLocations(newLocations);
     if (updateDate) setCutoffDate(updateDate);
+    const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     setSyncConfig((prev) => ({
       ...prev,
-      lastSyncTime: new Date().toLocaleTimeString('id-ID'),
+      lastSyncTime: nowStr,
       status: 'connected',
+      errorMessage: undefined,
     }));
+    setLastSyncNotification(`Tersinkronisasi (${newLocations.length} lokasi)`);
+    setTimeout(() => setLastSyncNotification(null), 4000);
   }, []);
 
   // Reset to initial UPPK Maluku data
   const handleResetToDefault = () => {
     setLocations(INITIAL_LOCATIONS);
-    setPackages(INITIAL_WORK_PACKAGES);
+    setPackages(computeWorkPackagesFromLocations(INITIAL_LOCATIONS));
     setStartDate(PROJECT_METADATA.startDate);
     setCutoffDate(PROJECT_METADATA.cutoffDate);
     setSelectedLocation(null);
     setSyncConfig({
       sourceUrl: '',
-      isLive: false,
-      autoRefresh: false,
-      refreshIntervalSec: 60,
-      lastSyncTime: '10 Sep 2026 (Built-in)',
-      status: 'idle',
+      isLive: true,
+      autoRefresh: true,
+      refreshIntervalSec: 30,
+      lastSyncTime: '10 Sep 2026',
+      status: 'connected',
     });
+    localStorage.removeItem('lisdes_locations_cache');
+    localStorage.removeItem('lisdes_sync_config');
   };
 
-  // Manual sync trigger
-  const handleManualSync = async () => {
+  // Manual & Automated sync trigger
+  const handleManualSync = useCallback(async () => {
     if (!syncConfig.sourceUrl) {
       setIsSyncModalOpen(true);
       return;
     }
 
     setSyncConfig((prev) => ({ ...prev, status: 'syncing' }));
+
+    let fetchUrl = syncConfig.sourceUrl.trim();
+    if (fetchUrl.includes('docs.google.com/spreadsheets/d/')) {
+      if (!fetchUrl.includes('output=csv') && !fetchUrl.includes('format=csv')) {
+        const match = fetchUrl.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        if (match && match[1]) {
+          const gidMatch = fetchUrl.match(/gid=([0-9]+)/);
+          const gidParam = gidMatch ? `&gid=${gidMatch[1]}` : '';
+          fetchUrl = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv${gidParam}`;
+        }
+      }
+    }
+
+    // Add cache buster query parameter to bypass CDN caching
+    const cacheBuster = `_t=${Date.now()}`;
+    const finalUrl = fetchUrl.includes('?') ? `${fetchUrl}&${cacheBuster}` : `${fetchUrl}?${cacheBuster}`;
+
     try {
-      const res = await fetch(syncConfig.sourceUrl);
+      const res = await fetch(finalUrl);
       if (res.ok) {
         const text = await res.text();
+
+        // Check if response is HTML error page
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+          if (currentUser) {
+            const match = syncConfig.sourceUrl.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            if (match && match[1]) {
+              const token = await getAccessToken();
+              if (token) {
+                const rows = await getSpreadsheetValues(match[1], 'A1:AZ150', token);
+                const parsed = parseSheetRowsToLocations(rows, locations);
+                setLocations(parsed.locations);
+                if (parsed.updateDate) setCutoffDate(parsed.updateDate);
+                const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                setSyncConfig((prev) => ({
+                  ...prev,
+                  status: 'connected',
+                  lastSyncTime: nowStr,
+                  errorMessage: undefined,
+                }));
+                setLastSyncNotification(`Otomatis diperbarui (${parsed.locations.length} lokasi)`);
+                setTimeout(() => setLastSyncNotification(null), 4000);
+                return;
+              }
+            }
+          }
+          throw new Error('Link Google Sheets memerlukan akses publik ("Publish to Web") atau login Google.');
+        }
+
         handleApplyCSVData(text);
       } else {
-        setSyncConfig((prev) => ({ ...prev, status: 'error', errorMessage: 'Gagal refresh data' }));
+        setSyncConfig((prev) => ({
+          ...prev,
+          status: 'error',
+          errorMessage: `Gagal refresh data (Status: ${res.status})`,
+        }));
       }
     } catch (err: any) {
-      setSyncConfig((prev) => ({ ...prev, status: 'error', errorMessage: err.message }));
+      setSyncConfig((prev) => ({
+        ...prev,
+        status: 'error',
+        errorMessage: err.message || 'Gagal tersambung ke spreadsheet',
+      }));
     }
-  };
+  }, [syncConfig.sourceUrl, locations, currentUser, handleApplyCSVData]);
 
   // Export CSV
   const handleExportCSV = () => {
@@ -152,16 +277,16 @@ export default function App() {
     document.body.removeChild(link);
   };
 
-  // Auto-refresh interval
+  // Auto-refresh interval (polling for changes)
   useEffect(() => {
     if (!syncConfig.autoRefresh || !syncConfig.sourceUrl) return;
 
     const interval = setInterval(() => {
       handleManualSync();
-    }, syncConfig.refreshIntervalSec * 1000);
+    }, (syncConfig.refreshIntervalSec || 30) * 1000);
 
     return () => clearInterval(interval);
-  }, [syncConfig.autoRefresh, syncConfig.sourceUrl, syncConfig.refreshIntervalSec]);
+  }, [syncConfig.autoRefresh, syncConfig.sourceUrl, syncConfig.refreshIntervalSec, handleManualSync]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -175,6 +300,18 @@ export default function App() {
         cutoffDate={cutoffDate}
         currentUser={currentUser}
         onSignIn={handleSignInGoogle}
+        locationsCount={locations.length}
+        up3Count={new Set(locations.map((l) => l.up3)).size}
+      />
+
+      {/* Persistent Live Google Sheets Sync Bar */}
+      <LiveSyncBanner
+        syncConfig={syncConfig}
+        onManualSync={handleManualSync}
+        onUpdateConfig={(partial) => setSyncConfig((prev) => ({ ...prev, ...partial }))}
+        onOpenModal={() => setIsSyncModalOpen(true)}
+        locationsCount={locations.length}
+        lastUpdatedMessage={lastSyncNotification}
       />
 
       {/* Main Content Area */}
@@ -203,7 +340,7 @@ export default function App() {
               }`}
             >
               <MapPin className="w-4 h-4" />
-              <span>Daftar 25 Lokasi Proyek</span>
+              <span>Daftar {locations.length} Lokasi Proyek</span>
             </button>
 
             <button
@@ -254,6 +391,7 @@ export default function App() {
             <WorkPackagesTable
               packages={packages}
               selectedLocation={selectedLocation}
+              locationsCount={locations.length}
             />
 
             {/* 25 Locations Matrix Table */}

@@ -5,11 +5,13 @@ import { Layers, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 interface WorkPackagesTableProps {
   packages: WorkPackageOverall[];
   selectedLocation: LocationProject | null;
+  locationsCount?: number;
 }
 
 export const WorkPackagesTable: React.FC<WorkPackagesTableProps> = ({
   packages,
   selectedLocation,
+  locationsCount = 25,
 }) => {
   // If a location is selected, synthesize its specific work items
   const displayItems = React.useMemo(() => {
@@ -131,7 +133,7 @@ export const WorkPackagesTable: React.FC<WorkPackagesTableProps> = ({
           <p className="text-xs text-slate-400 mt-0.5">
             {selectedLocation
               ? `Spesifikasi Pekerjaan di: ${selectedLocation.namaDusun} (${selectedLocation.pelaksana})`
-              : 'Akumulasi Seluruh Item Pekerjaan dari Gabungan 25 Lokasi'}
+              : `Akumulasi Seluruh Item Pekerjaan dari Gabungan ${locationsCount} Lokasi`}
           </p>
         </div>
 

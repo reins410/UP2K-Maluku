@@ -1,5 +1,5 @@
 export type UP3Name = 'UP3 MASOHI' | 'UP3 TUAL' | 'UP3 SAUMLAKI' | 'UP3 AMBON';
-export type TahapName = 'TAHAP 2' | 'TAHAP 3' | 'TAHAP 4';
+export type TahapName = 'TAHAP 1' | 'TAHAP 2' | 'TAHAP 3' | 'TAHAP 4' | 'TAHAP 5';
 export type ProjectStatus = 'Selesai' | 'On Progress' | 'Belum Mulai';
 
 export interface WorkItemBreakdown {
@@ -20,9 +20,18 @@ export interface LocationProject {
   namaDesa: string;
   kecamatan: string;
   kabupaten: string;
+  kodeDesa?: string;
+  ulp?: string;
   tahap: TahapName;
   up3: UP3Name;
   pelaksana: string;
+  nilaiKontrak?: string;
+  nilaiRealisasi?: string;
+  capel?: number;
+  noSpbj?: string;
+  tglAwalKontrak?: string;
+  tglAkhirKontrak?: string;
+  targetSelesai?: string;
   pematokan: WorkItemBreakdown;
   penggalian: WorkItemBreakdown;
   pengeceran: WorkItemBreakdown;

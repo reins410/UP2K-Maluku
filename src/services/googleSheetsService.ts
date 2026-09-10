@@ -185,7 +185,7 @@ export async function exportToNewGoogleSheet(
   ];
 
   const rows: any[][] = [
-    [`MONITORING PROGRES 25 LOKASI LISDES MALUKU`],
+    [`MONITORING PROGRES ${locations.length} LOKASI LISDES MALUKU`],
     [`Tanggal Cut-Off: ${cutoffDate}`, `Diekspor pada: ${new Date().toLocaleString('id-ID')}`],
     [],
     headers,
