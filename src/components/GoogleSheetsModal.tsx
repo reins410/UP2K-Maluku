@@ -74,7 +74,7 @@ export const GoogleSheetsModal: React.FC<GoogleSheetsModalProps> = ({
 
   // New Sheet Export state
   const [newSheetTitle, setNewSheetTitle] = useState(
-    `Monitoring Lisdes UPPK Maluku - ${existingLocations.length} Lokasi (${cutoffDate})`
+    `Monitoring Lisdes UPPK Maluku - 25 Lokasi (${cutoffDate})`
   );
   const [isExporting, setIsExporting] = useState(false);
   const [exportedSheetUrl, setExportedSheetUrl] = useState<string | null>(null);
@@ -220,7 +220,7 @@ export const GoogleSheetsModal: React.FC<GoogleSheetsModalProps> = ({
 
       setFeedback({
         type: 'success',
-        message: `Berhasil menyinkronkan data ${parsed.locations.length} lokasi dari Google Sheet "${selectedFile.name}" (Tab: ${tabName})!`,
+        message: `Berhasil menyinkronkan data 25 lokasi dari Google Sheet "${selectedFile.name}" (Tab: ${tabName})!`,
       });
     } catch (err: any) {
       setFeedback({
@@ -633,7 +633,7 @@ export const GoogleSheetsModal: React.FC<GoogleSheetsModalProps> = ({
                   </div>
                   <h4 className="text-sm font-bold text-white">Hubungkan Google Drive untuk Ekspor</h4>
                   <p className="text-xs text-slate-400 max-w-md mx-auto">
-                    Masuk dengan akun Google untuk langsung membuat file spreadsheet baru berisi seluruh data {existingLocations.length} lokasi proyek Lisdes Maluku di Google Drive Anda.
+                    Masuk dengan akun Google untuk langsung membuat file spreadsheet baru berisi seluruh data 25 lokasi proyek Lisdes Maluku di Google Drive Anda.
                   </p>
                   <div className="pt-2">
                     <GoogleSignInButton
@@ -663,7 +663,7 @@ export const GoogleSheetsModal: React.FC<GoogleSheetsModalProps> = ({
                   <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
                     <span className="font-semibold text-white block">Struktur Data yang Akan Ditulis:</span>
                     <ul className="list-disc pl-4 space-y-1 text-slate-400 text-[11px]">
-                      <li>{existingLocations.length} Dusun / Desa Proyek Lisdes UPPK Maluku</li>
+                      <li>25 Dusun / Desa Proyek Lisdes UPPK Maluku</li>
                       <li>Informasi Kontraktor, UP3 (Masohi, Tual, Saumlaki, Ambon), dan Tahap</li>
                       <li>Volume Tiang (TM/TR), Jaringan JTM & JTR, Gardu Distribusi</li>
                       <li>Realisasi (%) vs Target Rencana Baseline (%) dan Deviasi</li>
@@ -820,7 +820,7 @@ export const GoogleSheetsModal: React.FC<GoogleSheetsModalProps> = ({
       <ConfirmActionModal
         isOpen={showConfirmExportModal}
         title="Buat Spreadsheet di Google Drive?"
-        description={`Aplikasi akan membuat file Google Spreadsheet baru berjudul "${newSheetTitle}" di akun Google Drive Anda (${currentUser?.email}). File ini akan berisi tabel data ${existingLocations.length} lokasi proyek kelistrikan desa UPPK Maluku.`}
+        description={`Aplikasi akan membuat file Google Spreadsheet baru berjudul "${newSheetTitle}" di akun Google Drive Anda (${currentUser?.email}). File ini akan berisi tabel data 25 lokasi proyek kelistrikan desa UPPK Maluku.`}
         confirmLabel="Ya, Buat di Google Drive"
         cancelLabel="Batal"
         isProcessing={isExporting}

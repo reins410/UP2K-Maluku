@@ -104,9 +104,7 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({
               </span>
             ) : (
               <span className="text-sm font-semibold text-blue-400 bg-blue-950/60 px-2.5 py-0.5 rounded-lg border border-blue-800/60">
-                {selectedUP3Filter === 'ALL'
-                  ? `Gabungan Total (${locations.length} Lokasi)`
-                  : `Agregat ${selectedUP3Filter} (${filteredDropdownLocations.length} Lokasi)`}
+                {selectedUP3Filter === 'ALL' ? 'Gabungan Total (25 Lokasi)' : `Agregat ${selectedUP3Filter}`}
               </span>
             )}
           </h2>

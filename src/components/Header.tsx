@@ -12,8 +12,6 @@ interface HeaderProps {
   cutoffDate: string;
   currentUser?: User | null;
   onSignIn?: () => void;
-  locationsCount?: number;
-  up3Count?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -25,8 +23,6 @@ export const Header: React.FC<HeaderProps> = ({
   cutoffDate,
   currentUser,
   onSignIn,
-  locationsCount = 25,
-  up3Count = 4,
 }) => {
   return (
     <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-30 transition-all">
@@ -71,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="text-slate-600">•</span>
                 <span className="flex items-center gap-1 text-slate-300">
                   <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                  Cakupan: <strong className="text-white">{locationsCount} Dusun / Desa ({up3Count} UP3)</strong>
+                  Cakupan: <strong className="text-white">25 Dusun / Desa (4 UP3)</strong>
                 </span>
               </div>
             </div>

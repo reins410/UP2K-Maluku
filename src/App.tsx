@@ -175,8 +175,6 @@ export default function App() {
         cutoffDate={cutoffDate}
         currentUser={currentUser}
         onSignIn={handleSignInGoogle}
-        locationsCount={locations.length}
-        up3Count={new Set(locations.map((l) => l.up3)).size}
       />
 
       {/* Main Content Area */}
@@ -205,7 +203,7 @@ export default function App() {
               }`}
             >
               <MapPin className="w-4 h-4" />
-              <span>Daftar {locations.length} Lokasi Proyek</span>
+              <span>Daftar 25 Lokasi Proyek</span>
             </button>
 
             <button
@@ -256,7 +254,6 @@ export default function App() {
             <WorkPackagesTable
               packages={packages}
               selectedLocation={selectedLocation}
-              locationsCount={locations.length}
             />
 
             {/* 25 Locations Matrix Table */}
