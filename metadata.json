@@ -1,0 +1,6 @@
+{
+  "name": "PLN UPPK Maluku - Project Progress Monitoring & S-Curve Dashboard",
+  "description": "Dashboard interaktif pemantauan progres pekerjaan kelistrikan desa PLN UPPK Maluku dengan integrasi Google Sheets real-time, kurva S deviasi per lokasi, dan visualisasi KPI modern.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
