@@ -1,6 +1,6 @@
 export type UP3Name = 'UP3 MASOHI' | 'UP3 TUAL' | 'UP3 SAUMLAKI' | 'UP3 AMBON';
 export type TahapName = 'TAHAP 2' | 'TAHAP 3' | 'TAHAP 4';
-export type ProjectStatus = 'Selesai' | 'On Progress' | 'Kritis' | 'Belum Mulai';
+export type ProjectStatus = 'Selesai' | 'On Progress' | 'Belum Mulai';
 
 export interface WorkItemBreakdown {
   rencanaTotal: number;

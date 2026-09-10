@@ -151,20 +151,16 @@ export function getStatusBadgeInfo(status: string) {
       return {
         bg: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
         dot: 'bg-emerald-400',
-        text: 'Selesai 100%',
+        text: 'Selesai',
       };
     case 'On Progress':
+    case 'On Progres':
       return {
         bg: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30',
         dot: 'bg-cyan-400',
         text: 'On Progress',
       };
-    case 'Kritis':
-      return {
-        bg: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
-        dot: 'bg-rose-400',
-        text: 'Deviasi Kritis',
-      };
+    case 'Belum Mulai':
     default:
       return {
         bg: 'bg-slate-700/30 text-slate-400 border-slate-700/50',

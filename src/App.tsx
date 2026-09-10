@@ -14,10 +14,11 @@ import { KpiMetrics } from './components/KpiMetrics';
 import { SCurveChart } from './components/SCurveChart';
 import { WorkPackagesTable } from './components/WorkPackagesTable';
 import { LocationTable } from './components/LocationTable';
+import { ReportsView } from './components/ReportsView';
 import { GoogleSheetsModal } from './components/GoogleSheetsModal';
 import { LocationDetailModal } from './components/LocationDetailModal';
 import { parseMalukuSheetCSV, exportLocationsToCSV } from './utils/csvParser';
-import { LayoutDashboard, MapPin } from 'lucide-react';
+import { LayoutDashboard, MapPin, FileText } from 'lucide-react';
 import { initAuth, googleSignIn } from './services/googleAuth';
 import { User } from 'firebase/auth';
 
@@ -35,7 +36,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Active view tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'locations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'locations' | 'reports'>('overview');
 
   // Google Sheets real-time sync config
   const [syncConfig, setSyncConfig] = useState<SyncConfig>({
@@ -180,7 +181,7 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Navigation Tabs */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setActiveTab('overview')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -203,6 +204,18 @@ export default function App() {
             >
               <MapPin className="w-4 h-4" />
               <span>Daftar 25 Lokasi Proyek</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'reports'
+                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Laporan Harian & Mingguan</span>
             </button>
           </div>
 
@@ -271,13 +284,22 @@ export default function App() {
             />
           </div>
         )}
+
+        {/* Tab 3: Laporan Harian & Mingguan (Kumulatif Uraian & Rincian Lokasi) */}
+        {activeTab === 'reports' && (
+          <ReportsView
+            locations={locations}
+            cutoffDate={cutoffDate}
+            onOpenDetailModal={(loc) => setDetailModalLoc(loc)}
+          />
+        )}
       </main>
 
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-slate-950 text-slate-500 py-6 text-xs mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-300">PT PLN (PERSERO) UID MALUKU & MALUKU UTARA</span>
+            <span className="font-bold text-slate-300">PT PLN (PERSERO) UIW MALUKU DAN MALUKU UTARA</span>
             <span>•</span>
             <span>UPPK MALUKU</span>
           </div>

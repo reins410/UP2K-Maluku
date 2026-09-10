@@ -2,7 +2,7 @@ import { LocationProject, WorkPackageOverall, DailyLogEntry } from '../types';
 
 export const PROJECT_METADATA = {
   title: 'Monitoring Progres Pekerjaan Kelistrikan Desa (LISDES / LISSA)',
-  unit: 'PLN UID MALUKU & MALUKU UTARA - UPPK MALUKU',
+  unit: 'PLN UIW MALUKU DAN MALUKU UTARA - UPPK MALUKU',
   startDate: '27 Jun 2026',
   cutoffDate: '10 Sep 2026',
   totalLocations: 25,
@@ -34,7 +34,7 @@ export const INITIAL_LOCATIONS: LocationProject[] = [
     progresKeseluruhan: 0.00,
     rencanaProgres: 42.50,
     deviasi: -42.50,
-    status: 'Kritis',
+    status: 'Belum Mulai',
     lastUpdated: '10 Sep 2026',
   },
   {
@@ -60,7 +60,7 @@ export const INITIAL_LOCATIONS: LocationProject[] = [
     progresKeseluruhan: 0.00,
     rencanaProgres: 45.00,
     deviasi: -45.00,
-    status: 'Kritis',
+    status: 'Belum Mulai',
     lastUpdated: '10 Sep 2026',
   },
   {
@@ -86,7 +86,7 @@ export const INITIAL_LOCATIONS: LocationProject[] = [
     progresKeseluruhan: 0.00,
     rencanaProgres: 45.00,
     deviasi: -45.00,
-    status: 'Kritis',
+    status: 'Belum Mulai',
     lastUpdated: '10 Sep 2026',
   },
   {
@@ -112,7 +112,7 @@ export const INITIAL_LOCATIONS: LocationProject[] = [
     progresKeseluruhan: 0.00,
     rencanaProgres: 40.00,
     deviasi: -40.00,
-    status: 'Kritis',
+    status: 'Belum Mulai',
     lastUpdated: '10 Sep 2026',
   },
   {
@@ -138,7 +138,7 @@ export const INITIAL_LOCATIONS: LocationProject[] = [
     progresKeseluruhan: 0.00,
     rencanaProgres: 40.00,
     deviasi: -40.00,
-    status: 'Kritis',
+    status: 'Belum Mulai',
     lastUpdated: '10 Sep 2026',
   },
   {
@@ -346,7 +346,7 @@ export const INITIAL_LOCATIONS: LocationProject[] = [
     progresKeseluruhan: 0.00,
     rencanaProgres: 28.00,
     deviasi: -28.00,
-    status: 'Kritis',
+    status: 'Belum Mulai',
     lastUpdated: '10 Sep 2026',
   },
   {
@@ -398,7 +398,7 @@ export const INITIAL_LOCATIONS: LocationProject[] = [
     progresKeseluruhan: 0.00,
     rencanaProgres: 30.00,
     deviasi: -30.00,
-    status: 'Kritis',
+    status: 'Belum Mulai',
     lastUpdated: '10 Sep 2026',
   },
   {
@@ -502,7 +502,7 @@ export const INITIAL_LOCATIONS: LocationProject[] = [
     progresKeseluruhan: 0.00,
     rencanaProgres: 32.00,
     deviasi: -32.00,
-    status: 'Kritis',
+    status: 'Belum Mulai',
     lastUpdated: '10 Sep 2026',
   },
   {

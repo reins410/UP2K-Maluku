@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { LocationProject, UP3Name, TahapName, ProjectStatus } from '../types';
-import { Search, Filter, ArrowUpDown, ChevronRight, CheckCircle2, Clock, AlertTriangle, ExternalLink, LineChart } from 'lucide-react';
+import { Search, ArrowUpDown, ExternalLink, LineChart } from 'lucide-react';
 import { getStatusBadgeInfo } from '../utils/scurveGenerator';
 
 interface LocationTableProps {
@@ -20,7 +20,7 @@ export const LocationTable: React.FC<LocationTableProps> = ({
   const [selectedUP3, setSelectedUP3] = useState<string>('ALL');
   const [selectedTahap, setSelectedTahap] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
-  const [sortBy, setSortBy] = useState<'no' | 'progres' | 'deviasi' | 'nama'>('no');
+  const [sortBy, setSortBy] = useState<'no' | 'progres' | 'nama'>('no');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Filtered & Sorted locations
@@ -45,12 +45,20 @@ export const LocationTable: React.FC<LocationTableProps> = ({
         // Tahap filter
         if (selectedTahap !== 'ALL' && loc.tahap !== selectedTahap) return false;
 
-        // Status filter
+        // Status filter (Belum Mulai, On Progress, Selesai)
         if (selectedStatus !== 'ALL') {
-          if (selectedStatus === 'Selesai' && loc.progresKeseluruhan < 100) return false;
-          if (selectedStatus === 'On Progress' && (loc.progresKeseluruhan <= 0 || loc.progresKeseluruhan >= 100)) return false;
-          if (selectedStatus === 'Belum Mulai' && loc.progresKeseluruhan > 0) return false;
-          if (selectedStatus === 'Kritis' && loc.deviasi > -15) return false;
+          const locStatus =
+            loc.progresKeseluruhan >= 100
+              ? 'Selesai'
+              : loc.progresKeseluruhan > 0
+              ? 'On Progress'
+              : 'Belum Mulai';
+
+          if (selectedStatus === 'On Progress' || selectedStatus === 'On Progres') {
+            if (locStatus !== 'On Progress') return false;
+          } else if (locStatus !== selectedStatus) {
+            return false;
+          }
         }
 
         return true;
@@ -59,14 +67,13 @@ export const LocationTable: React.FC<LocationTableProps> = ({
         let diff = 0;
         if (sortBy === 'no') diff = a.no - b.no;
         else if (sortBy === 'progres') diff = a.progresKeseluruhan - b.progresKeseluruhan;
-        else if (sortBy === 'deviasi') diff = a.deviasi - b.deviasi;
         else if (sortBy === 'nama') diff = a.namaDusun.localeCompare(b.namaDusun);
 
         return sortOrder === 'asc' ? diff : -diff;
       });
   }, [locations, searchQuery, selectedUP3, selectedTahap, selectedStatus, sortBy, sortOrder]);
 
-  const toggleSort = (column: 'no' | 'progres' | 'deviasi' | 'nama') => {
+  const toggleSort = (column: 'no' | 'progres' | 'nama') => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -81,13 +88,13 @@ export const LocationTable: React.FC<LocationTableProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-800">
         <div>
           <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight flex items-center gap-2">
-            Matriks Progres & Deviasi per Lokasi Proyek
+            Matriks Progres per Lokasi Proyek
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
               {filteredLocations.length} dari {locations.length} Lokasi
             </span>
           </h3>
           <p className="text-xs text-slate-400 mt-1">
-            Klik tombol "Kurva-S" pada baris lokasi untuk memuat visualisasi deviasi individualnya di grafik atas.
+            Klik tombol "Kurva S" pada baris lokasi untuk memuat visualisasi kurva individualnya di grafik atas.
           </p>
         </div>
 
@@ -153,7 +160,7 @@ export const LocationTable: React.FC<LocationTableProps> = ({
         {/* Status Filter */}
         <div className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-lg border border-slate-800">
           <span className="text-slate-400 text-[11px] px-1.5 font-medium">Status:</span>
-          {['ALL', 'Selesai', 'On Progress', 'Kritis', 'Belum Mulai'].map((st) => (
+          {['ALL', 'Belum Mulai', 'On Progress', 'Selesai'].map((st) => (
             <button
               key={st}
               onClick={() => setSelectedStatus(st)}
@@ -194,23 +201,12 @@ export const LocationTable: React.FC<LocationTableProps> = ({
               </th>
               <th className="py-2.5 px-3">UP3 & Tahap</th>
               <th className="py-2.5 px-3">Kontraktor Pelaksana</th>
-              <th className="py-2.5 px-3 text-center">Tiang (btg)</th>
               <th
                 onClick={() => toggleSort('progres')}
                 className="py-2.5 px-3 text-right cursor-pointer hover:text-white transition-colors"
               >
                 <div className="flex items-center justify-end gap-1">
                   <span>Realisasi</span>
-                  <ArrowUpDown className="w-3 h-3" />
-                </div>
-              </th>
-              <th className="py-2.5 px-3 text-right">Rencana S-Curve</th>
-              <th
-                onClick={() => toggleSort('deviasi')}
-                className="py-2.5 px-3 text-right cursor-pointer hover:text-white transition-colors"
-              >
-                <div className="flex items-center justify-end gap-1">
-                  <span>Deviasi</span>
                   <ArrowUpDown className="w-3 h-3" />
                 </div>
               </th>
@@ -221,9 +217,13 @@ export const LocationTable: React.FC<LocationTableProps> = ({
           <tbody className="divide-y divide-slate-800/60">
             {filteredLocations.map((loc) => {
               const isSelected = selectedLocation?.id === loc.id;
-              const isAhead = loc.deviasi >= 0;
-              const isCritical = loc.deviasi <= -15;
-              const badge = getStatusBadgeInfo(loc.status);
+              const displayStatus: ProjectStatus =
+                loc.progresKeseluruhan >= 100
+                  ? 'Selesai'
+                  : loc.progresKeseluruhan > 0
+                  ? 'On Progress'
+                  : 'Belum Mulai';
+              const badge = getStatusBadgeInfo(displayStatus);
 
               return (
                 <tr
@@ -264,22 +264,12 @@ export const LocationTable: React.FC<LocationTableProps> = ({
                     </span>
                   </td>
 
-                  {/* Tiang Metrics */}
-                  <td className="py-3 px-3 text-center font-mono">
-                    <div className="font-semibold text-white">
-                      {loc.penanamanTiang.realisasiTotal} / {loc.penanamanTiang.rencanaTotal}
-                    </div>
-                    <div className="text-[10px] text-slate-400">
-                      TM:{loc.penanamanTiangTM.realisasiTotal} TR:{loc.penanamanTiangTR.realisasiTotal}
-                    </div>
-                  </td>
-
                   {/* Realisasi % */}
                   <td className="py-3 px-3 text-right font-mono">
                     <div className="font-bold text-sm text-white">
                       {loc.progresKeseluruhan.toFixed(2)}%
                     </div>
-                    <div className="w-16 ml-auto bg-slate-800 rounded-full h-1 mt-1 overflow-hidden">
+                    <div className="w-20 ml-auto bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
                       <div
                         className={`h-full ${
                           loc.progresKeseluruhan === 100
@@ -293,31 +283,11 @@ export const LocationTable: React.FC<LocationTableProps> = ({
                     </div>
                   </td>
 
-                  {/* Rencana S-Curve % */}
-                  <td className="py-3 px-3 text-right font-mono text-slate-300">
-                    {loc.rencanaProgres.toFixed(2)}%
-                  </td>
-
-                  {/* Deviasi % */}
-                  <td className="py-3 px-3 text-right font-mono">
-                    <span
-                      className={`inline-block font-bold px-1.5 py-0.5 rounded text-[11px] ${
-                        isAhead
-                          ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25'
-                          : isCritical
-                          ? 'bg-rose-500/15 text-rose-300 border border-rose-500/25'
-                          : 'bg-amber-500/15 text-amber-300 border border-amber-500/25'
-                      }`}
-                    >
-                      {loc.deviasi >= 0 ? `+${loc.deviasi.toFixed(2)}%` : `${loc.deviasi.toFixed(2)}%`}
-                    </span>
-                  </td>
-
                   {/* Status Badge */}
                   <td className="py-3 px-3 text-center whitespace-nowrap">
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${badge.bg}`}>
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${badge.bg}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
-                      {loc.status}
+                      {displayStatus}
                     </span>
                   </td>
 
