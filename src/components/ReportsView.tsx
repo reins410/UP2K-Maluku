@@ -146,7 +146,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         cumulativeItems,
         title,
         periodLabel,
-        selectedUP3 === 'ALL' ? 'Semua UP3 (25 Lokasi)' : selectedUP3
+        selectedUP3 === 'ALL' ? `Semua UP3 (${locations.length} Lokasi)` : selectedUP3
       );
       filename = `Laporan_${frequency === 'daily' ? 'Harian' : 'Mingguan'}_Kumulatif_Uraian_Pekerjaan_${selectedDailyDate.replace(/\s+/g, '_')}.csv`;
     } else {
@@ -155,7 +155,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         filteredLocations,
         title,
         periodLabel,
-        selectedUP3 === 'ALL' ? 'Semua UP3 (25 Lokasi)' : selectedUP3
+        selectedUP3 === 'ALL' ? `Semua UP3 (${locations.length} Lokasi)` : selectedUP3
       );
       filename = `Laporan_${frequency === 'daily' ? 'Harian' : 'Mingguan'}_Rincian_Per_Lokasi_${selectedDailyDate.replace(/\s+/g, '_')}.csv`;
     }

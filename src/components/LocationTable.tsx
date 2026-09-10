@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { LocationProject, UP3Name, TahapName, ProjectStatus } from '../types';
-import { Search, ArrowUpDown, ExternalLink, LineChart } from 'lucide-react';
+import { Search, ArrowUpDown, ExternalLink, LineChart, Plus, Edit3, Trash2, RotateCcw, MapPin, Building2 } from 'lucide-react';
 import { getStatusBadgeInfo } from '../utils/scurveGenerator';
 
 interface LocationTableProps {
@@ -8,6 +8,10 @@ interface LocationTableProps {
   selectedLocation: LocationProject | null;
   onSelectLocation: (loc: LocationProject | null) => void;
   onOpenDetailModal: (loc: LocationProject) => void;
+  onAddLocation?: () => void;
+  onEditLocation?: (loc: LocationProject) => void;
+  onDeleteLocation?: (loc: LocationProject) => void;
+  onResetLocations?: () => void;
 }
 
 export const LocationTable: React.FC<LocationTableProps> = ({
@@ -15,6 +19,10 @@ export const LocationTable: React.FC<LocationTableProps> = ({
   selectedLocation,
   onSelectLocation,
   onOpenDetailModal,
+  onAddLocation,
+  onEditLocation,
+  onDeleteLocation,
+  onResetLocations,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUP3, setSelectedUP3] = useState<string>('ALL');
@@ -22,6 +30,32 @@ export const LocationTable: React.FC<LocationTableProps> = ({
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [sortBy, setSortBy] = useState<'no' | 'progres' | 'nama'>('no');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // Compute breakdown counts
+  const up3Counts = useMemo(() => {
+    return {
+      'UP3 MASOHI': locations.filter((l) => l.up3 === 'UP3 MASOHI').length,
+      'UP3 TUAL': locations.filter((l) => l.up3 === 'UP3 TUAL').length,
+      'UP3 SAUMLAKI': locations.filter((l) => l.up3 === 'UP3 SAUMLAKI').length,
+      'UP3 AMBON': locations.filter((l) => l.up3 === 'UP3 AMBON').length,
+    };
+  }, [locations]);
+
+  const tahapCounts = useMemo(() => {
+    return {
+      'TAHAP 2': locations.filter((l) => l.tahap === 'TAHAP 2').length,
+      'TAHAP 3': locations.filter((l) => l.tahap === 'TAHAP 3').length,
+      'TAHAP 4': locations.filter((l) => l.tahap === 'TAHAP 4').length,
+    };
+  }, [locations]);
+
+  const statusCounts = useMemo(() => {
+    return {
+      'Belum Mulai': locations.filter((l) => l.progresKeseluruhan === 0).length,
+      'On Progress': locations.filter((l) => l.progresKeseluruhan > 0 && l.progresKeseluruhan < 100).length,
+      'Selesai': locations.filter((l) => l.progresKeseluruhan >= 100).length,
+    };
+  }, [locations]);
 
   // Filtered & Sorted locations
   const filteredLocations = useMemo(() => {
@@ -84,95 +118,162 @@ export const LocationTable: React.FC<LocationTableProps> = ({
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur">
-      {/* Header and Filter Controls */}
+      {/* Header and Action Controls */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-800">
         <div>
-          <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight flex items-center gap-2">
-            Matriks Progres per Lokasi Proyek
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-              {filteredLocations.length} dari {locations.length} Lokasi
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+              Matriks Progres per Lokasi Proyek
+            </h3>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 font-mono">
+              {filteredLocations.length} dari {locations.length} Lokasi Terdaftar
             </span>
-          </h3>
+          </div>
           <p className="text-xs text-slate-400 mt-1">
-            Klik tombol "Kurva S" pada baris lokasi untuk memuat visualisasi kurva individualnya di grafik atas.
+            Kelola dan pantau seluruh daftar cakupan lokasi desa/dusun, volume tiang, konduktor, dan progres fisik.
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative min-w-[260px] max-w-sm">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari dusun, desa, kab, kontraktor..."
-            className="w-full bg-slate-800/90 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-          />
-          {searchQuery && (
+        {/* Action Buttons & Search */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {onAddLocation && (
             <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"
+              onClick={onAddLocation}
+              className="px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-lg shadow-cyan-900/30 cursor-pointer"
             >
-              ✕
+              <Plus className="w-4 h-4" />
+              <span>Tambah Lokasi Baru</span>
             </button>
           )}
+
+          {onResetLocations && (
+            <button
+              onClick={onResetLocations}
+              title="Kembalikan daftar lokasi ke 25 data awal"
+              className="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-400 hover:text-slate-200 border border-slate-700 text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Reset Awal</span>
+            </button>
+          )}
+
+          {/* Search Bar */}
+          <div className="relative min-w-[220px] max-w-sm">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari dusun, desa, kab, kontraktor..."
+              className="w-full bg-slate-800/90 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Coverage Breakdown Quick Badges */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 py-3 border-b border-slate-800/60 text-xs">
+        <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between">
+          <span className="text-slate-400 text-[11px] font-medium flex items-center gap-1">
+            <Building2 className="w-3.5 h-3.5 text-cyan-400" />
+            UP3 MASOHI
+          </span>
+          <span className="font-bold text-white font-mono">{up3Counts['UP3 MASOHI']} Lokasi</span>
+        </div>
+        <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between">
+          <span className="text-slate-400 text-[11px] font-medium flex items-center gap-1">
+            <Building2 className="w-3.5 h-3.5 text-blue-400" />
+            UP3 TUAL
+          </span>
+          <span className="font-bold text-white font-mono">{up3Counts['UP3 TUAL']} Lokasi</span>
+        </div>
+        <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between">
+          <span className="text-slate-400 text-[11px] font-medium flex items-center gap-1">
+            <Building2 className="w-3.5 h-3.5 text-indigo-400" />
+            UP3 SAUMLAKI
+          </span>
+          <span className="font-bold text-white font-mono">{up3Counts['UP3 SAUMLAKI']} Lokasi</span>
+        </div>
+        <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between">
+          <span className="text-slate-400 text-[11px] font-medium flex items-center gap-1">
+            <Building2 className="w-3.5 h-3.5 text-teal-400" />
+            UP3 AMBON
+          </span>
+          <span className="font-bold text-white font-mono">{up3Counts['UP3 AMBON']} Lokasi</span>
         </div>
       </div>
 
       {/* Filter Row */}
-      <div className="flex flex-wrap items-center gap-2 py-3.5 border-b border-slate-800/60 text-xs">
+      <div className="flex flex-wrap items-center gap-2 py-3 border-b border-slate-800/60 text-xs">
         {/* UP3 Filter */}
         <div className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-lg border border-slate-800">
           <span className="text-slate-400 text-[11px] px-1.5 font-medium">UP3:</span>
-          {['ALL', 'UP3 MASOHI', 'UP3 TUAL', 'UP3 SAUMLAKI', 'UP3 AMBON'].map((up) => (
-            <button
-              key={up}
-              onClick={() => setSelectedUP3(up)}
-              className={`px-2 py-1 rounded transition-colors cursor-pointer ${
-                selectedUP3 === up
-                  ? 'bg-cyan-500 text-white font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {up === 'ALL' ? 'Semua' : up.replace('UP3 ', '')}
-            </button>
-          ))}
+          {['ALL', 'UP3 MASOHI', 'UP3 TUAL', 'UP3 SAUMLAKI', 'UP3 AMBON'].map((up) => {
+            const count = up === 'ALL' ? locations.length : up3Counts[up as keyof typeof up3Counts] || 0;
+            return (
+              <button
+                key={up}
+                onClick={() => setSelectedUP3(up)}
+                className={`px-2 py-1 rounded transition-colors cursor-pointer ${
+                  selectedUP3 === up
+                    ? 'bg-cyan-500 text-white font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {up === 'ALL' ? `Semua (${count})` : `${up.replace('UP3 ', '')} (${count})`}
+              </button>
+            );
+          })}
         </div>
 
         {/* Tahap Filter */}
         <div className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-lg border border-slate-800">
           <span className="text-slate-400 text-[11px] px-1.5 font-medium">Tahap:</span>
-          {['ALL', 'TAHAP 2', 'TAHAP 3', 'TAHAP 4'].map((tahap) => (
-            <button
-              key={tahap}
-              onClick={() => setSelectedTahap(tahap)}
-              className={`px-2 py-1 rounded transition-colors cursor-pointer ${
-                selectedTahap === tahap
-                  ? 'bg-blue-600 text-white font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {tahap === 'ALL' ? 'Semua' : tahap}
-            </button>
-          ))}
+          {['ALL', 'TAHAP 2', 'TAHAP 3', 'TAHAP 4'].map((tahap) => {
+            const count = tahap === 'ALL' ? locations.length : tahapCounts[tahap as keyof typeof tahapCounts] || 0;
+            return (
+              <button
+                key={tahap}
+                onClick={() => setSelectedTahap(tahap)}
+                className={`px-2 py-1 rounded transition-colors cursor-pointer ${
+                  selectedTahap === tahap
+                    ? 'bg-blue-600 text-white font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {tahap === 'ALL' ? `Semua (${count})` : `${tahap} (${count})`}
+              </button>
+            );
+          })}
         </div>
 
         {/* Status Filter */}
         <div className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-lg border border-slate-800">
           <span className="text-slate-400 text-[11px] px-1.5 font-medium">Status:</span>
-          {['ALL', 'Belum Mulai', 'On Progress', 'Selesai'].map((st) => (
-            <button
-              key={st}
-              onClick={() => setSelectedStatus(st)}
-              className={`px-2 py-1 rounded transition-colors cursor-pointer ${
-                selectedStatus === st
-                  ? 'bg-slate-700 text-white font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {st === 'ALL' ? 'Semua Status' : st}
-            </button>
-          ))}
+          {['ALL', 'Belum Mulai', 'On Progress', 'Selesai'].map((st) => {
+            const count = st === 'ALL' ? locations.length : statusCounts[st as keyof typeof statusCounts] || 0;
+            return (
+              <button
+                key={st}
+                onClick={() => setSelectedStatus(st)}
+                className={`px-2 py-1 rounded transition-colors cursor-pointer ${
+                  selectedStatus === st
+                    ? 'bg-slate-700 text-white font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {st === 'ALL' ? `Semua (${count})` : `${st} (${count})`}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -314,6 +415,26 @@ export const LocationTable: React.FC<LocationTableProps> = ({
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
                       </button>
+
+                      {onEditLocation && (
+                        <button
+                          onClick={() => onEditLocation(loc)}
+                          title="Edit parameter & data lokasi ini"
+                          className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 border border-slate-700 transition-colors cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      {onDeleteLocation && (
+                        <button
+                          onClick={() => onDeleteLocation(loc)}
+                          title="Hapus lokasi dari daftar cakupan proyek"
+                          className="p-1 rounded bg-slate-800 hover:bg-rose-950/70 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-800 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

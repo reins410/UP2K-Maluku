@@ -1,6 +1,6 @@
 import React from 'react';
 import { RefreshCw, Sheet, Download, Calendar, MapPin, Zap, ExternalLink } from 'lucide-react';
-import { SyncConfig } from '../types';
+import { SyncConfig, LocationProject } from '../types';
 import { User } from 'firebase/auth';
 
 interface HeaderProps {
@@ -12,6 +12,7 @@ interface HeaderProps {
   cutoffDate: string;
   currentUser?: User | null;
   onSignIn?: () => void;
+  locations?: LocationProject[];
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,7 +24,12 @@ export const Header: React.FC<HeaderProps> = ({
   cutoffDate,
   currentUser,
   onSignIn,
+  locations = [],
 }) => {
+  const totalLocations = locations.length;
+  const uniqueUp3s = Array.from(new Set(locations.map((l) => l.up3)));
+  const totalUp3Count = uniqueUp3s.length || 4;
+
   return (
     <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-30 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
@@ -67,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="text-slate-600">•</span>
                 <span className="flex items-center gap-1 text-slate-300">
                   <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                  Cakupan: <strong className="text-white">25 Dusun / Desa (4 UP3)</strong>
+                  Cakupan: <strong className="text-white">{totalLocations} Dusun / Desa ({totalUp3Count} UP3)</strong>
                 </span>
               </div>
             </div>

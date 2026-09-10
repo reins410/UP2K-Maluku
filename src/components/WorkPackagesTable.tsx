@@ -3,118 +3,263 @@ import { WorkPackageOverall, LocationProject } from '../types';
 import { Layers, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 
 interface WorkPackagesTableProps {
-  packages: WorkPackageOverall[];
+  packages?: WorkPackageOverall[];
   selectedLocation: LocationProject | null;
+  locations?: LocationProject[];
 }
 
 export const WorkPackagesTable: React.FC<WorkPackagesTableProps> = ({
-  packages,
+  packages = [],
   selectedLocation,
+  locations = [],
 }) => {
-  // If a location is selected, synthesize its specific work items
+  // If a location is selected, synthesize its specific work items; otherwise aggregate from locations
   const displayItems = React.useMemo(() => {
-    if (!selectedLocation) return packages;
+    if (selectedLocation) {
+      const loc = selectedLocation;
+      return [
+        {
+          no: 1,
+          nama: 'Pematokan Jalur & Titik Tiang',
+          satuan: 'btg/titik',
+          rencana: loc.pematokan.rencanaTotal,
+          realisasi: loc.pematokan.realisasiTotal,
+          persen: loc.pematokan.rencanaTotal > 0 ? (loc.pematokan.realisasiTotal / loc.pematokan.rencanaTotal) * 100 : 0,
+          rencanaTM: loc.pematokan.rencanaTM,
+          realisasiTM: loc.pematokan.realisasiTM,
+          rencanaTR: loc.pematokan.rencanaTR,
+          realisasiTR: loc.pematokan.realisasiTR,
+        },
+        {
+          no: 2,
+          nama: 'Penggalian Tanah',
+          satuan: 'titik',
+          rencana: loc.penggalian.rencanaTotal,
+          realisasi: loc.penggalian.realisasiTotal,
+          persen: loc.penggalian.rencanaTotal > 0 ? (loc.penggalian.realisasiTotal / loc.penggalian.rencanaTotal) * 100 : 0,
+          rencanaTM: loc.penggalian.rencanaTM,
+          realisasiTM: loc.penggalian.realisasiTM,
+          rencanaTR: loc.penggalian.rencanaTR,
+          realisasiTR: loc.penggalian.realisasiTR,
+        },
+        {
+          no: 3,
+          nama: 'Pengeceran Tiang',
+          satuan: 'btg',
+          rencana: loc.pengeceran.rencanaTotal,
+          realisasi: loc.pengeceran.realisasiTotal,
+          persen: loc.pengeceran.rencanaTotal > 0 ? (loc.pengeceran.realisasiTotal / loc.pengeceran.rencanaTotal) * 100 : 0,
+          rencanaTM: loc.pengeceran.rencanaTM,
+          realisasiTM: loc.pengeceran.realisasiTM,
+          rencanaTR: loc.pengeceran.rencanaTR,
+          realisasiTR: loc.pengeceran.realisasiTR,
+        },
+        {
+          no: 4,
+          nama: 'Perambasan Pohon (ROW)',
+          satuan: 'kms',
+          rencana: loc.perambasan.rencanaTotal,
+          realisasi: loc.perambasan.realisasiTotal,
+          persen: loc.perambasan.rencanaTotal > 0 ? (loc.perambasan.realisasiTotal / loc.perambasan.rencanaTotal) * 100 : 0,
+        },
+        {
+          no: 5,
+          nama: 'Penanaman Tiang Total',
+          satuan: 'btg',
+          rencana: loc.penanamanTiang.rencanaTotal,
+          realisasi: loc.penanamanTiang.realisasiTotal,
+          persen: loc.penanamanTiang.rencanaTotal > 0 ? (loc.penanamanTiang.realisasiTotal / loc.penanamanTiang.rencanaTotal) * 100 : 0,
+          rencanaTM: loc.penanamanTiangTM.rencanaTotal,
+          realisasiTM: loc.penanamanTiangTM.realisasiTotal,
+          rencanaTR: loc.penanamanTiangTR.rencanaTotal,
+          realisasiTR: loc.penanamanTiangTR.realisasiTotal,
+        },
+        {
+          no: 6,
+          nama: 'Penanaman Tiang TM',
+          satuan: 'btg',
+          rencana: loc.penanamanTiangTM.rencanaTotal,
+          realisasi: loc.penanamanTiangTM.realisasiTotal,
+          persen: loc.penanamanTiangTM.rencanaTotal > 0 ? (loc.penanamanTiangTM.realisasiTotal / loc.penanamanTiangTM.rencanaTotal) * 100 : 0,
+        },
+        {
+          no: 7,
+          nama: 'Penarikan Konduktor TM',
+          satuan: 'kms',
+          rencana: loc.penarikanKonduktorTM.rencanaTotal,
+          realisasi: loc.penarikanKonduktorTM.realisasiTotal,
+          persen: loc.penarikanKonduktorTM.rencanaTotal > 0 ? (loc.penarikanKonduktorTM.realisasiTotal / loc.penarikanKonduktorTM.rencanaTotal) * 100 : 0,
+        },
+        {
+          no: 8,
+          nama: 'Penanaman Tiang TR',
+          satuan: 'btg',
+          rencana: loc.penanamanTiangTR.rencanaTotal,
+          realisasi: loc.penanamanTiangTR.realisasiTotal,
+          persen: loc.penanamanTiangTR.rencanaTotal > 0 ? (loc.penanamanTiangTR.realisasiTotal / loc.penanamanTiangTR.rencanaTotal) * 100 : 0,
+        },
+        {
+          no: 9,
+          nama: 'Penarikan Konduktor TR',
+          satuan: 'kms',
+          rencana: loc.penarikanKonduktorTR.rencanaTotal,
+          realisasi: loc.penarikanKonduktorTR.realisasiTotal,
+          persen: loc.penarikanKonduktorTR.rencanaTotal > 0 ? (loc.penarikanKonduktorTR.realisasiTotal / loc.penarikanKonduktorTR.rencanaTotal) * 100 : 0,
+        },
+        {
+          no: 10,
+          nama: 'Pekerjaan Gardu Distribusi',
+          satuan: 'unit',
+          rencana: loc.garduDistribusi.rencanaTotal,
+          realisasi: loc.garduDistribusi.realisasiTotal,
+          persen: loc.garduDistribusi.rencanaTotal > 0 ? (loc.garduDistribusi.realisasiTotal / loc.garduDistribusi.rencanaTotal) * 100 : 0,
+        },
+      ];
+    }
 
-    const loc = selectedLocation;
-    return [
-      {
-        no: 1,
-        nama: 'Pematokan Jalur & Titik Tiang',
-        satuan: 'btg/titik',
-        rencana: loc.pematokan.rencanaTotal,
-        realisasi: loc.pematokan.realisasiTotal,
-        persen: loc.pematokan.rencanaTotal > 0 ? (loc.pematokan.realisasiTotal / loc.pematokan.rencanaTotal) * 100 : 0,
-        rencanaTM: loc.pematokan.rencanaTM,
-        realisasiTM: loc.pematokan.realisasiTM,
-        rencanaTR: loc.pematokan.rencanaTR,
-        realisasiTR: loc.pematokan.realisasiTR,
-      },
-      {
-        no: 2,
-        nama: 'Penggalian Tanah',
-        satuan: 'titik',
-        rencana: loc.penggalian.rencanaTotal,
-        realisasi: loc.penggalian.realisasiTotal,
-        persen: loc.penggalian.rencanaTotal > 0 ? (loc.penggalian.realisasiTotal / loc.penggalian.rencanaTotal) * 100 : 0,
-        rencanaTM: loc.penggalian.rencanaTM,
-        realisasiTM: loc.penggalian.realisasiTM,
-        rencanaTR: loc.penggalian.rencanaTR,
-        realisasiTR: loc.penggalian.realisasiTR,
-      },
-      {
-        no: 3,
-        nama: 'Pengeceran Tiang',
-        satuan: 'btg',
-        rencana: loc.pengeceran.rencanaTotal,
-        realisasi: loc.pengeceran.realisasiTotal,
-        persen: loc.pengeceran.rencanaTotal > 0 ? (loc.pengeceran.realisasiTotal / loc.pengeceran.rencanaTotal) * 100 : 0,
-        rencanaTM: loc.pengeceran.rencanaTM,
-        realisasiTM: loc.pengeceran.realisasiTM,
-        rencanaTR: loc.pengeceran.rencanaTR,
-        realisasiTR: loc.pengeceran.realisasiTR,
-      },
-      {
-        no: 4,
-        nama: 'Perambasan Pohon (ROW)',
-        satuan: 'kms',
-        rencana: loc.perambasan.rencanaTotal,
-        realisasi: loc.perambasan.realisasiTotal,
-        persen: loc.perambasan.rencanaTotal > 0 ? (loc.perambasan.realisasiTotal / loc.perambasan.rencanaTotal) * 100 : 0,
-      },
-      {
-        no: 5,
-        nama: 'Penanaman Tiang Total',
-        satuan: 'btg',
-        rencana: loc.penanamanTiang.rencanaTotal,
-        realisasi: loc.penanamanTiang.realisasiTotal,
-        persen: loc.penanamanTiang.rencanaTotal > 0 ? (loc.penanamanTiang.realisasiTotal / loc.penanamanTiang.rencanaTotal) * 100 : 0,
-        rencanaTM: loc.penanamanTiangTM.rencanaTotal,
-        realisasiTM: loc.penanamanTiangTM.realisasiTotal,
-        rencanaTR: loc.penanamanTiangTR.rencanaTotal,
-        realisasiTR: loc.penanamanTiangTR.realisasiTotal,
-      },
-      {
-        no: 6,
-        nama: 'Penanaman Tiang TM',
-        satuan: 'btg',
-        rencana: loc.penanamanTiangTM.rencanaTotal,
-        realisasi: loc.penanamanTiangTM.realisasiTotal,
-        persen: loc.penanamanTiangTM.rencanaTotal > 0 ? (loc.penanamanTiangTM.realisasiTotal / loc.penanamanTiangTM.rencanaTotal) * 100 : 0,
-      },
-      {
-        no: 7,
-        nama: 'Penarikan Konduktor TM',
-        satuan: 'kms',
-        rencana: loc.penarikanKonduktorTM.rencanaTotal,
-        realisasi: loc.penarikanKonduktorTM.realisasiTotal,
-        persen: loc.penarikanKonduktorTM.rencanaTotal > 0 ? (loc.penarikanKonduktorTM.realisasiTotal / loc.penarikanKonduktorTM.rencanaTotal) * 100 : 0,
-      },
-      {
-        no: 8,
-        nama: 'Penanaman Tiang TR',
-        satuan: 'btg',
-        rencana: loc.penanamanTiangTR.rencanaTotal,
-        realisasi: loc.penanamanTiangTR.realisasiTotal,
-        persen: loc.penanamanTiangTR.rencanaTotal > 0 ? (loc.penanamanTiangTR.realisasiTotal / loc.penanamanTiangTR.rencanaTotal) * 100 : 0,
-      },
-      {
-        no: 9,
-        nama: 'Penarikan Konduktor TR',
-        satuan: 'kms',
-        rencana: loc.penarikanKonduktorTR.rencanaTotal,
-        realisasi: loc.penarikanKonduktorTR.realisasiTotal,
-        persen: loc.penarikanKonduktorTR.rencanaTotal > 0 ? (loc.penarikanKonduktorTR.realisasiTotal / loc.penarikanKonduktorTR.rencanaTotal) * 100 : 0,
-      },
-      {
-        no: 10,
-        nama: 'Pekerjaan Gardu Distribusi',
-        satuan: 'unit',
-        rencana: loc.garduDistribusi.rencanaTotal,
-        realisasi: loc.garduDistribusi.realisasiTotal,
-        persen: loc.garduDistribusi.rencanaTotal > 0 ? (loc.garduDistribusi.realisasiTotal / loc.garduDistribusi.rencanaTotal) * 100 : 0,
-      },
-    ];
-  }, [packages, selectedLocation]);
+    if (locations && locations.length > 0) {
+      const pematokanRencana = locations.reduce((s, l) => s + l.pematokan.rencanaTotal, 0);
+      const pematokanRealisasi = locations.reduce((s, l) => s + l.pematokan.realisasiTotal, 0);
+      const pematokanRencanaTM = locations.reduce((s, l) => s + (l.pematokan.rencanaTM || 0), 0);
+      const pematokanRealisasiTM = locations.reduce((s, l) => s + (l.pematokan.realisasiTM || 0), 0);
+      const pematokanRencanaTR = locations.reduce((s, l) => s + (l.pematokan.rencanaTR || 0), 0);
+      const pematokanRealisasiTR = locations.reduce((s, l) => s + (l.pematokan.realisasiTR || 0), 0);
+
+      const galianRencana = locations.reduce((s, l) => s + l.penggalian.rencanaTotal, 0);
+      const galianRealisasi = locations.reduce((s, l) => s + l.penggalian.realisasiTotal, 0);
+      const galianRencanaTM = locations.reduce((s, l) => s + (l.penggalian.rencanaTM || 0), 0);
+      const galianRealisasiTM = locations.reduce((s, l) => s + (l.penggalian.realisasiTM || 0), 0);
+      const galianRencanaTR = locations.reduce((s, l) => s + (l.penggalian.rencanaTR || 0), 0);
+      const galianRealisasiTR = locations.reduce((s, l) => s + (l.penggalian.realisasiTR || 0), 0);
+
+      const eceranRencana = locations.reduce((s, l) => s + l.pengeceran.rencanaTotal, 0);
+      const eceranRealisasi = locations.reduce((s, l) => s + l.pengeceran.realisasiTotal, 0);
+      const eceranRencanaTM = locations.reduce((s, l) => s + (l.pengeceran.rencanaTM || 0), 0);
+      const eceranRealisasiTM = locations.reduce((s, l) => s + (l.pengeceran.realisasiTM || 0), 0);
+      const eceranRencanaTR = locations.reduce((s, l) => s + (l.pengeceran.rencanaTR || 0), 0);
+      const eceranRealisasiTR = locations.reduce((s, l) => s + (l.pengeceran.realisasiTR || 0), 0);
+
+      const rambasRencana = locations.reduce((s, l) => s + l.perambasan.rencanaTotal, 0);
+      const rambasRealisasi = locations.reduce((s, l) => s + l.perambasan.realisasiTotal, 0);
+
+      const tiangTotalRencana = locations.reduce((s, l) => s + l.penanamanTiang.rencanaTotal, 0);
+      const tiangTotalRealisasi = locations.reduce((s, l) => s + l.penanamanTiang.realisasiTotal, 0);
+      const tiangTMRencana = locations.reduce((s, l) => s + l.penanamanTiangTM.rencanaTotal, 0);
+      const tiangTMRealisasi = locations.reduce((s, l) => s + l.penanamanTiangTM.realisasiTotal, 0);
+      const tiangTRRencana = locations.reduce((s, l) => s + l.penanamanTiangTR.rencanaTotal, 0);
+      const tiangTRRealisasi = locations.reduce((s, l) => s + l.penanamanTiangTR.realisasiTotal, 0);
+
+      const jtmRencana = locations.reduce((s, l) => s + l.penarikanKonduktorTM.rencanaTotal, 0);
+      const jtmRealisasi = locations.reduce((s, l) => s + l.penarikanKonduktorTM.realisasiTotal, 0);
+
+      const jtrRencana = locations.reduce((s, l) => s + l.penarikanKonduktorTR.rencanaTotal, 0);
+      const jtrRealisasi = locations.reduce((s, l) => s + l.penarikanKonduktorTR.realisasiTotal, 0);
+
+      const garduRencana = locations.reduce((s, l) => s + l.garduDistribusi.rencanaTotal, 0);
+      const garduRealisasi = locations.reduce((s, l) => s + l.garduDistribusi.realisasiTotal, 0);
+
+      return [
+        {
+          no: 1,
+          nama: 'Pematokan Jalur & Titik Tiang',
+          satuan: 'btg/titik',
+          rencana: pematokanRencana,
+          realisasi: pematokanRealisasi,
+          persen: pematokanRencana > 0 ? (pematokanRealisasi / pematokanRencana) * 100 : 0,
+          rencanaTM: pematokanRencanaTM,
+          realisasiTM: pematokanRealisasiTM,
+          rencanaTR: pematokanRencanaTR,
+          realisasiTR: pematokanRealisasiTR,
+        },
+        {
+          no: 2,
+          nama: 'Penggalian Tanah',
+          satuan: 'titik',
+          rencana: galianRencana,
+          realisasi: galianRealisasi,
+          persen: galianRencana > 0 ? (galianRealisasi / galianRencana) * 100 : 0,
+          rencanaTM: galianRencanaTM,
+          realisasiTM: galianRealisasiTM,
+          rencanaTR: galianRencanaTR,
+          realisasiTR: galianRealisasiTR,
+        },
+        {
+          no: 3,
+          nama: 'Pengeceran Tiang',
+          satuan: 'btg',
+          rencana: eceranRencana,
+          realisasi: eceranRealisasi,
+          persen: eceranRencana > 0 ? (eceranRealisasi / eceranRencana) * 100 : 0,
+          rencanaTM: eceranRencanaTM,
+          realisasiTM: eceranRealisasiTM,
+          rencanaTR: eceranRencanaTR,
+          realisasiTR: eceranRealisasiTR,
+        },
+        {
+          no: 4,
+          nama: 'Perambasan Pohon (ROW)',
+          satuan: 'kms',
+          rencana: parseFloat(rambasRencana.toFixed(2)),
+          realisasi: parseFloat(rambasRealisasi.toFixed(2)),
+          persen: rambasRencana > 0 ? (rambasRealisasi / rambasRencana) * 100 : 0,
+        },
+        {
+          no: 5,
+          nama: 'Penanaman Tiang Total',
+          satuan: 'btg',
+          rencana: tiangTotalRencana,
+          realisasi: tiangTotalRealisasi,
+          persen: tiangTotalRencana > 0 ? (tiangTotalRealisasi / tiangTotalRencana) * 100 : 0,
+          rencanaTM: tiangTMRencana,
+          realisasiTM: tiangTMRealisasi,
+          rencanaTR: tiangTRRencana,
+          realisasiTR: tiangTRRealisasi,
+        },
+        {
+          no: 6,
+          nama: 'Penanaman Tiang TM',
+          satuan: 'btg',
+          rencana: tiangTMRencana,
+          realisasi: tiangTMRealisasi,
+          persen: tiangTMRencana > 0 ? (tiangTMRealisasi / tiangTMRencana) * 100 : 0,
+        },
+        {
+          no: 7,
+          nama: 'Penarikan Konduktor TM',
+          satuan: 'kms',
+          rencana: parseFloat(jtmRencana.toFixed(3)),
+          realisasi: parseFloat(jtmRealisasi.toFixed(3)),
+          persen: jtmRencana > 0 ? (jtmRealisasi / jtmRencana) * 100 : 0,
+        },
+        {
+          no: 8,
+          nama: 'Penanaman Tiang TR',
+          satuan: 'btg',
+          rencana: tiangTRRencana,
+          realisasi: tiangTRRealisasi,
+          persen: tiangTRRencana > 0 ? (tiangTRRealisasi / tiangTRRencana) * 100 : 0,
+        },
+        {
+          no: 9,
+          nama: 'Penarikan Konduktor TR',
+          satuan: 'kms',
+          rencana: parseFloat(jtrRencana.toFixed(3)),
+          realisasi: parseFloat(jtrRealisasi.toFixed(3)),
+          persen: jtrRencana > 0 ? (jtrRealisasi / jtrRencana) * 100 : 0,
+        },
+        {
+          no: 10,
+          nama: 'Pekerjaan Gardu Distribusi',
+          satuan: 'unit',
+          rencana: garduRencana,
+          realisasi: garduRealisasi,
+          persen: garduRencana > 0 ? (garduRealisasi / garduRencana) * 100 : 0,
+        },
+      ];
+    }
+
+    return packages;
+  }, [packages, selectedLocation, locations]);
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur">
@@ -131,7 +276,7 @@ export const WorkPackagesTable: React.FC<WorkPackagesTableProps> = ({
           <p className="text-xs text-slate-400 mt-0.5">
             {selectedLocation
               ? `Spesifikasi Pekerjaan di: ${selectedLocation.namaDusun} (${selectedLocation.pelaksana})`
-              : 'Akumulasi Seluruh Item Pekerjaan dari Gabungan 25 Lokasi'}
+              : `Akumulasi Seluruh Item Pekerjaan dari Gabungan ${locations.length} Lokasi`}
           </p>
         </div>
 

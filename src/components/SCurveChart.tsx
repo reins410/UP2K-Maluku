@@ -104,7 +104,9 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({
               </span>
             ) : (
               <span className="text-sm font-semibold text-blue-400 bg-blue-950/60 px-2.5 py-0.5 rounded-lg border border-blue-800/60">
-                {selectedUP3Filter === 'ALL' ? 'Gabungan Total (25 Lokasi)' : `Agregat ${selectedUP3Filter}`}
+                {selectedUP3Filter === 'ALL'
+                  ? `Gabungan Total (${locations.length} Lokasi)`
+                  : `Agregat ${selectedUP3Filter} (${filteredDropdownLocations.length} Lokasi)`}
               </span>
             )}
           </h2>
@@ -125,24 +127,27 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              Semua UP3
+              Semua UP3 ({locations.length})
             </button>
-            {(['UP3 MASOHI', 'UP3 TUAL', 'UP3 SAUMLAKI', 'UP3 AMBON'] as UP3Name[]).map((up3) => (
-              <button
-                key={up3}
-                onClick={() => {
-                  setSelectedUP3Filter(up3);
-                  onSelectLocation(null);
-                }}
-                className={`px-2 py-1 rounded font-medium transition-colors cursor-pointer ${
-                  selectedUP3Filter === up3 && !selectedLocation
-                    ? 'bg-cyan-500 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {up3.replace('UP3 ', '')}
-              </button>
-            ))}
+            {(['UP3 MASOHI', 'UP3 TUAL', 'UP3 SAUMLAKI', 'UP3 AMBON'] as UP3Name[]).map((up3) => {
+              const count = locations.filter((l) => l.up3 === up3).length;
+              return (
+                <button
+                  key={up3}
+                  onClick={() => {
+                    setSelectedUP3Filter(up3);
+                    onSelectLocation(null);
+                  }}
+                  className={`px-2 py-1 rounded font-medium transition-colors cursor-pointer ${
+                    selectedUP3Filter === up3 && !selectedLocation
+                      ? 'bg-cyan-500 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {up3.replace('UP3 ', '')} ({count})
+                </button>
+              );
+            })}
           </div>
 
           {/* Location Dropdown */}
@@ -160,7 +165,7 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({
               }}
               className="w-full appearance-none bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white text-xs font-semibold rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
             >
-              <option value="all">📊 Gabungan Portofolio (Semua Lokasi)</option>
+              <option value="all">📊 Gabungan Portofolio (Semua {locations.length} Lokasi)</option>
               <optgroup label="Pilih Lokasi Spesifik:">
                 {filteredDropdownLocations.map((loc) => (
                   <option key={loc.id} value={loc.id}>
