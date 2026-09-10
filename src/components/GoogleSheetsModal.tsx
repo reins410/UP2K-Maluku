@@ -280,18 +280,12 @@ export const GoogleSheetsModal: React.FC<GoogleSheetsModalProps> = ({
         if (!fetchUrl.includes('output=csv') && !fetchUrl.includes('format=csv')) {
           const match = fetchUrl.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
           if (match && match[1]) {
-            const gidMatch = fetchUrl.match(/gid=([0-9]+)/);
-            const gidParam = gidMatch ? `&gid=${gidMatch[1]}` : '';
-            fetchUrl = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv${gidParam}`;
+            fetchUrl = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv`;
           }
         }
       }
 
-      // Add cache buster
-      const cacheBuster = `_t=${Date.now()}`;
-      const finalUrl = fetchUrl.includes('?') ? `${fetchUrl}&${cacheBuster}` : `${fetchUrl}?${cacheBuster}`;
-
-      const res = await fetch(finalUrl);
+      const res = await fetch(fetchUrl);
       if (!res.ok) {
         throw new Error(
           `Gagal mengambil data dari Google Sheets (Status: ${res.status}). Pastikan dokumen telah di-share publik atau 'Publish to Web'.`

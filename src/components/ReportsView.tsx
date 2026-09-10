@@ -372,7 +372,6 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 className="bg-slate-900 border border-slate-700 hover:border-slate-600 rounded-lg px-2 py-1.5 text-xs text-white font-semibold focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
               >
                 <option value="ALL">Semua Tahap</option>
-                <option value="TAHAP 1">Tahap 1</option>
                 <option value="TAHAP 2">Tahap 2</option>
                 <option value="TAHAP 3">Tahap 3</option>
                 <option value="TAHAP 4">Tahap 4</option>
